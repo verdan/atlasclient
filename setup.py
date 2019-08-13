@@ -46,7 +46,7 @@ setup_args = dict(
     zip_safe=False,
     keywords='atlasclient, pyatlasclient, apache atlas, atlas',
     classifiers=[
-        'Development Status :: Production',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
