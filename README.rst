@@ -12,8 +12,8 @@ Apache Atlas Client in Python
 .. image:: https://coveralls.io/repos/github/verdan/pyatlasclient/badge.svg?branch=master
         :target: https://coveralls.io/github/verdan/pyatlasclient?branch=master
 
-.. image:: https://readthedocs.org/projects/atlasclient/badge/?version=latest
-        :target: https://atlasclient.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/pyatlasclient/badge/?version=latest
+        :target: https://pyatlasclient.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/verdan/pyatlasclient/shield.svg
@@ -26,7 +26,7 @@ Apache Atlas client in Python. Only compatible with Apache Atlas REST API **v2**
 *Based on the awesome work done by Poullet in atlasclient*
 
 * Free software: Apache Software License 2.0
-* Documentation: https://atlasclient.readthedocs.io.
+* Documentation: https://pyatlasclient.readthedocs.io.
 
 Get started
 -----------
