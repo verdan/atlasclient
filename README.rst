@@ -3,8 +3,8 @@ Apache Atlas Client in Python
 =============================
 
 
-.. image:: https://img.shields.io/pypi/v/atlasclient.svg
-        :target: https://pypi.python.org/pypi/atlasclient
+.. image:: https://img.shields.io/pypi/v/pyatlasclient.svg
+        :target: https://pypi.python.org/pypi/pyatlasclient
 
 .. image:: https://img.shields.io/travis/verdan/pyatlasclient.svg
         :target: https://travis-ci.org/verdan/pyatlasclient

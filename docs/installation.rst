@@ -4,4 +4,4 @@ Installation
 
 Install the package with pip::
 
-    $ pip install atlasclient
+    $ pip install pyatlasclient
