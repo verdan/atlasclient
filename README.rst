@@ -6,23 +6,24 @@ Apache Atlas Client in Python
 .. image:: https://img.shields.io/pypi/v/atlasclient.svg
         :target: https://pypi.python.org/pypi/atlasclient
 
-.. image:: https://img.shields.io/travis/jpoullet2000/atlasclient.svg
-        :target: https://travis-ci.org/jpoullet2000/atlasclient
+.. image:: https://img.shields.io/travis/verdan/pyatlasclient.svg
+        :target: https://travis-ci.org/verdan/pyatlasclient
 
-.. image:: https://coveralls.io/repos/github/jpoullet2000/atlasclient/badge.svg?branch=master
-        :target: https://coveralls.io/github/jpoullet2000/atlasclient?branch=master
+.. image:: https://coveralls.io/repos/github/verdan/pyatlasclient/badge.svg?branch=master
+        :target: https://coveralls.io/github/verdan/pyatlasclient?branch=master
 
 .. image:: https://readthedocs.org/projects/atlasclient/badge/?version=latest
         :target: https://atlasclient.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/jpoullet2000/atlasclient/shield.svg
-     :target: https://pyup.io/repos/github/jpoullet2000/atlasclient/
+.. image:: https://pyup.io/repos/github/verdan/pyatlasclient/shield.svg
+     :target: https://pyup.io/repos/github/verdan/pyatlasclient/
      :alt: Updates
 
 
-Apache Atlas client in Python. 
-Only compatible with Apache Atlas REST API **v2**. 
+Apache Atlas client in Python. Only compatible with Apache Atlas REST API **v2**.
+
+*Based on the awesome work done by Poullet in atlasclient*
 
 * Free software: Apache Software License 2.0
 * Documentation: https://atlasclient.readthedocs.io.

@@ -32,21 +32,21 @@ with open(setup_requirements_path) as setup_requirements_file:
     setup_requirements = setup_requirements_file.readlines()
 
 setup_args = dict(
-    name='atlasclient',
+    name='pyatlasclient',
     version=version,
-    description="Apache Atlas client",
+    description="Apache Atlas Python Client",
     long_description=readme + '\n\n' + history,
-    author="Jean-Baptiste Poullet",
-    author_email='jeanbaptistepoullet@gmail.com',
-    url='https://github.com/jpoullet2000/atlasclient',
+    author="Verdan Mahmood",
+    author_email='verdan.mahmood@gmail.com',
+    url='https://github.com/verdan/pyatlasclient',
     packages=find_packages(include=['atlasclient']),
     include_package_data=True,
     install_requires=requirements,
     license='Apache Software License 2.0',
     zip_safe=False,
-    keywords='atlasclient',
+    keywords='atlasclient, pyatlasclient, apache atlas, atlas',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: Production',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
