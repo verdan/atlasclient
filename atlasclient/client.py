@@ -11,19 +11,18 @@
 #    under the License.
 
 import copy
-import functools
-import io
 import json
 import logging
 import tarfile
 
+import functools
+import io
 import requests
 
 from atlasclient import models, utils, base, exceptions
 from atlasclient.exceptions import handle_response
 
-LOG = logging.getLogger(__name__)
-LOG.addHandler(utils.NullHandler())
+LOG = logging.getLogger('pyatlasclient')
 
 # this defines where the Atlas client delegates to for actual logic
 ENTRY_POINTS = {'entity_guid': models.EntityGuid,
@@ -54,7 +53,7 @@ ENTRY_POINTS = {'entity_guid': models.EntityGuid,
                 'relationship_guid': models.RelationshipGuid,
                 'search_saved': models.SearchSaved,
                 'admin_metrics': models.AdminMetrics
-               }
+                }
 
 
 class Atlas(object):
@@ -63,6 +62,7 @@ class Atlas(object):
     This is the entry point to the Atlas API. Create this client and then
     use one of the entry points to start hitting Atlas object collections.
     """
+
     def __init__(self, host, port=None, username=None, password=None,
                  identifier=None, protocol=None, validate_ssl=True,
                  timeout=10, max_retries=5, auth=None):
@@ -115,13 +115,14 @@ class HttpClient(object):
     was supplied by the API.  This should be uncommon except for error cases, but
     cases do exist either due to Atlas bugs or other mitigating circumstances.
     """
+
     def __init__(self, host, username, password, identifier, validate_ssl=True,
                  timeout=10, max_retries=5, auth=None):
         basic_token = utils.generate_http_basic_token(username=username, password=password)
         self.request_params = {
             'headers': {'X-Requested-By': identifier,
                         'Authorization': 'Basic {}'.format(basic_token)},
-            #'auth': (username, password),
+            # 'auth': (username, password),
             'verify': validate_ssl,
             'timeout': timeout,
         }
@@ -150,6 +151,10 @@ class HttpClient(object):
             params['data'] = json.dumps(params['data'])
         elif 'data' in params and isinstance(params['data'], list):
             params['data'] = json.dumps(params['data'])
+
+        LOG.debug(f"Requesting Atlas with the '{method}' method.")
+        if params.get('data'):
+            LOG.debug(f"With the following data: {params['data']}")
 
         response = requests_method(url, **params)
 
@@ -191,6 +196,7 @@ class AtlasJsonEncoder(json.JSONEncoder):
     This allows for passing in models and ModelCollections into related objects'
     create/update methods and having it handle the conversion automatically.
     """
+
     def default(self, obj):  # pylint: disable=method-hidden
         if isinstance(obj, base.ModelCollection):
             dicts = []

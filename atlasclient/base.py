@@ -14,18 +14,17 @@
 Defines all the base classes for response objects.
 """
 
-from datetime import datetime, timedelta
+import ast
 import json
 import logging
-import time
-import ast
 
 import six
+import time
+from datetime import datetime, timedelta
 
 from atlasclient import events, exceptions, utils
 
-LOG = logging.getLogger(__name__)
-LOG.addHandler(utils.NullHandler())
+LOG = logging.getLogger('pyatlasclient')
 
 OLDEST_SUPPORTED_VERSION = (1, 7, 0)
 
@@ -259,6 +258,7 @@ class QueryableModelCollection(ModelCollection):
                         # In case of DSL Queries, we can specify the list in a query
                         # but this will try to evaluate this as a list and failed as syntax error.
                         self._filter[k] = v
+            LOG.debug("Trying to fetch collection from server - ".format(self.model_class.__class__.__name__))
             self.load(self.client.get(self.url, params=self._filter))
 
         self._is_inflated = True
@@ -275,6 +275,7 @@ class QueryableModelCollection(ModelCollection):
         In some rare cases, a collection can have an asynchronous request
         triggered.  For those cases, we handle it here.
         """
+        LOG.debug("Parsing the GET response for the collection - {}".format(self.model_class.__class__.__name__))
         self._models = []
         if isinstance(response, dict):
             for key in response.keys():
@@ -290,6 +291,7 @@ class QueryableModelCollection(ModelCollection):
 
     def create(self, *args, **kwargs):
         """Add a resource to this collection."""
+        LOG.debug(f"Adding a new resource to the collection {self.__class__.__name__} with the data {kwargs}")
         href = self.url
         if len(args) == 1:
             kwargs[self.model_class.primary_key] = args[0]
@@ -303,6 +305,9 @@ class QueryableModelCollection(ModelCollection):
 
     def update(self, **kwargs):
         """Update all resources in this collection."""
+        LOG.debug(f"Updating all resources in the collection "
+                  f"{self.model_class.__class__.__name__} "
+                  f"with the following arguments {kwargs}")
         self.inflate()
         for model in self._models:
             model.update(**kwargs)
@@ -310,6 +315,7 @@ class QueryableModelCollection(ModelCollection):
 
     def delete(self, **kwargs):
         """Delete all resources in this collection."""
+        LOG.debug("Deleting all resources in this collection:  ".format(self.model_class.__class__.__name__))
         self.inflate()
         for model in self._models:
             model.delete(**kwargs)
@@ -357,6 +363,7 @@ class DependentModelCollection(ModelCollection):
         What you start with is all you ever get.  If the parent resource is
         reloaded, it should create new collections for these resources.
         """
+        LOG.debug("Generating the models for this collection:  ".format(self.model_class.__class__.__name__))
         items = []
         if len(args) == 1:
             if isinstance(args[0], list):
@@ -366,9 +373,11 @@ class DependentModelCollection(ModelCollection):
                 if len(matches) == 1:
                     return matches[0]
                 elif len(matches) > 1:
-                    raise ValueError("More than one {0} with {1} '{2}' found in "
-                                     "collection".format(self.model_class.__class__.__name__,
-                                                         self.model_class.primary_key, args[0]))
+                    error_message = "More than one {0} with {1} '{2}' found in collection" \
+                        .format(self.model_class.__class__.__name__,
+                                self.model_class.primary_key, args[0])
+                    LOG.error(error_message)
+                    raise ValueError(error_message)
                 return None
 
         if len(items) > 0:
@@ -418,6 +427,7 @@ class Model(object):
     min_version = OLDEST_SUPPORTED_VERSION
 
     def __init__(self, parent, data=None):
+        LOG.debug("Generating new model class: {} with the data: {}".format(self.__class__.__name__, data))
         if data is None:
             data = {}
 
@@ -471,6 +481,7 @@ class Model(object):
         if attr in self.fields:
             # if it came from a parent inflation, we might only have partial data
             if attr not in self._data:
+                LOG.debug(f"Lazy-loading the relationship attribute: '{attr}'.")
                 self.inflate()
             return self._data.get(attr)
 
@@ -612,6 +623,7 @@ class QueryableModel(Model):
                 msg = ("There is not enough data to inflate this object.  "
                        "Need either an href: {} or a {}: {}")
                 msg = msg.format(self._href, self.primary_key, self._data.get(self.primary_key))
+                LOG.error(msg)
                 raise exceptions.ClientError(msg)
 
             self._is_inflating = True
@@ -632,14 +644,17 @@ class QueryableModel(Model):
             data = {self.data_key: {}}
             if len(kwargs) == 0:
                 data = self._data
+                LOG.info(f"Input data generated: {data}")
                 return data
             for field in kwargs:
                 if field in self.fields:
                     data[self.data_key][field] = kwargs[field]
                 else:
                     data[field] = kwargs[field]
+            LOG.info(f"Input data generated: {data}")
             return data
         else:
+            LOG.info(f"No data key specified - Using kwargs: {kwargs}")
             return kwargs
 
     @events.evented
@@ -656,6 +671,8 @@ class QueryableModel(Model):
         details are returned in a 'Requests' section. We need to store that
         request object so we can poll it until completion.
         """
+        LOG.info(f"Trying to parse the raw JSON response from the server for "
+                 f"{self.__class__.__name__} Response: {response}")
         if 'href' in response:
             self._href = response.pop('href')
         if self.data_key and self.data_key in response:
@@ -682,6 +699,8 @@ class QueryableModel(Model):
         if self.primary_key in kwargs:
             del kwargs[self.primary_key]
         data = self._generate_input_dict(**kwargs)
+        LOG.info(f"Creating a new instance of the resource "
+                 f"{self.__class__.__name__}, with data: {data}")
         self.load(self.client.post(self.url, data=data))
         return self
 
@@ -702,6 +721,8 @@ class QueryableModel(Model):
         """
         self.method = 'put'
         data = self._generate_input_dict(**kwargs)
+        LOG.info(f"Updating an instance of the resource "
+                 f"{self.__class__.__name__}, with data: {data}")
         self.load(self.client.put(self.url, data=data))
         return self
 
@@ -713,6 +734,7 @@ class QueryableModel(Model):
             self.load(self.client.delete(self.url, params=kwargs))
         else:
             self.load(self.client.delete(self.url))
+        LOG.info(f"Deleting the resource {self.__class__.__name__} using url: {self.url}")
         self.parent.remove(self)
         return
 

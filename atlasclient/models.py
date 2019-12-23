@@ -13,20 +13,21 @@
 """
 Defines all the model classes for the various parts of the API.
 """
-import itertools
-import logging
 import json
+import logging
+
+import itertools
 import six
 
 from atlasclient import base, exceptions, events
-from atlasclient.utils import NullHandler
 
-LOG = logging.getLogger(__name__)
-LOG.addHandler(NullHandler())
+LOG = logging.getLogger('pyatlasclient')
 
 
 class EntityCollection(base.DependentModelCollection):
     def __init__(self, client, model_class, parent=None):
+        LOG.debug(f"Generating the EntityCollection Model with following entities: "
+                  f"{parent._data.get('entities') if parent else None}")
         self.client = client
         self.model_class = model_class
         self.parent = parent
@@ -36,7 +37,7 @@ class EntityCollection(base.DependentModelCollection):
             model = self.model_class(self, data=entity)
             self._models.append(model)
         self._iter_marker = 0
- 
+
     def __call__(self, *args):
         self._is_inflated = True
         self._models = []
@@ -49,7 +50,7 @@ class EntityCollection(base.DependentModelCollection):
 class Entity(base.DependentModel):
     collection_class = EntityCollection
     fields = ('guid', 'status', 'displayText', 'classificationNames', 'typeName', 'attributes', 'createdBy',
-              'updatedBy', 'createTime', 'updateTime', 'version', 'relationshipAttributes', )
+              'updatedBy', 'createTime', 'updateTime', 'version', 'relationshipAttributes',)
 
 
 class EntityPostCollection(base.QueryableModelCollection):
@@ -57,7 +58,8 @@ class EntityPostCollection(base.QueryableModelCollection):
         """
         """
         if 'data' not in kwargs:
-            raise exceptions.BadRequest(method=self.__call__, details='This class should be called with the argument "data="')
+            raise exceptions.BadRequest(method=self.__call__,
+                                        details='This class should be called with the argument "data="')
         self._models = []
         self._is_inflated = True
         model = self.model_class(self,
@@ -71,6 +73,7 @@ class EntityPostCollection(base.QueryableModelCollection):
         """
         Update a resource by passing in modifications via keyword arguments.
         """
+        LOG.debug(f"Trying to create {self.__class__.__name__} with the data {data}")
         return self.client.post(self.url, data=data)
 
 
@@ -82,8 +85,9 @@ class EntityPost(base.QueryableModel):
     collection_class = EntityPostCollection
     path = 'entity'
     data_key = 'entity_post'
-    fields = ('entity', 'referredEntities', 
-              'mutatedEntities', 'guidAssignments', 'createdEntities', 'updatedEntities', 'partialUpdatedEntities', 'deletedEntities',
+    fields = ('entity', 'referredEntities',
+              'mutatedEntities', 'guidAssignments', 'createdEntities', 'updatedEntities', 'partialUpdatedEntities',
+              'deletedEntities',
               'firstEntityUpdated', 'firstEntityPartialUpdated')
 
     @events.evented
@@ -91,14 +95,17 @@ class EntityPost(base.QueryableModel):
         """
         Delete is not allowed for this resource
         """
-        raise exceptions.MethodNotImplemented(method=self.delete, details='The method delete is not available for this resource')
+        raise exceptions.MethodNotImplemented(method=self.delete,
+                                              details='The method delete is not available for this resource')
 
     @events.evented
     def update(self, **kwargs):
         """
         Update is not allowed for this resource
         """
-        raise exceptions.MethodNotImplemented(method=self.update, details='The method update is not available for this resource')
+        raise exceptions.MethodNotImplemented(method=self.update,
+                                              details='The method update is not available for this resource')
+
 
 class ClassificationItemCollection(base.DependentModelCollection):
     def __init__(self, client, model_class, parent=None):
@@ -115,7 +122,7 @@ class ClassificationItemCollection(base.DependentModelCollection):
 
 class ClassificationItem(base.DependentModel):
     collection_class = ClassificationItemCollection
-    fields = ('typeName', )
+    fields = ('typeName',)
 
 
 class Classification(base.QueryableModel):
@@ -135,6 +142,7 @@ class Classification(base.QueryableModel):
         if self.primary_key in kwargs:
             del kwargs[self.primary_key]
         data = self._generate_input_dict(**kwargs)
+        LOG.debug(f"Trying to create {self.__class__.__name__} with the data {data}")
         self.load(self.client.post('/'.join(self.url.split('/')[:-1]) + 's', data=data))
         return self
 
@@ -144,6 +152,7 @@ class Classification(base.QueryableModel):
         Update a resource by passing in modifications via keyword arguments.
         """
         data = self._generate_input_dict(**kwargs)
+        LOG.debug(f"Trying to update {self.__class__.__name__} with the data {data}")
         self.load(self.client.put('/'.join(self.url.split('/')[:-1]) + 's', data=data))
         return self
 
@@ -177,6 +186,7 @@ class EntityGuidClassificationCollection(base.QueryableModelCollection):
                 for field in classification_item.fields:
                     class_item_dict[field] = getattr(classification_item, field)
                 data.append(class_item_dict)
+        LOG.debug(f"Trying to update {self.__class__.__name__} with the data {data}")
         self.load(self.client.put(self.url, data=data))
         return self
 
@@ -184,12 +194,13 @@ class EntityGuidClassificationCollection(base.QueryableModelCollection):
         """ 
         Create classifitions for specific entity
         """
+        LOG.debug(f"Trying to create {self.__class__.__name__} with the data {data}")
         return self.client.post(self.url, data=data)
 
 
 class EntityGuidClassification(base.QueryableModel):
     path = 'classifications'
-    #data_key = 'classifications'
+    # data_key = 'classifications'
     fields = ('sortType', 'list', 'totalCount', 'startIndex', 'pageSize')
     relationships = {'list': ClassificationItem}
     collection_class = EntityGuidClassificationCollection
@@ -201,7 +212,7 @@ class EntityGuid(base.QueryableModel):
     primary_key = 'guid'
     fields = ('entity', 'referredEntities')
     relationships = {'classifications': EntityGuidClassification,
-                    }
+                     }
 
     def _generate_input_dict(self, **kwargs):
         return self._data
@@ -210,7 +221,10 @@ class EntityGuid(base.QueryableModel):
         if attribute not in self.entity['attributes']:
             raise exceptions.BadRequest(method=self.update,
                                         details='The attribute {} does not exist for {}'.format(attribute,
-                                                                                                self.entity['typeName']))
+                                                                                                self.entity[
+                                                                                                    'typeName']))
+        LOG.debug(f"Trying to update the attribute '{attribute}' of {self.entity['typeName']} "
+                  f"with the value {self.entity['attributes'][attribute]}")
         self.load(self.client.put(self.url + '?name={}'.format(attribute),
                                   data=self.entity['attributes'][attribute]))
         return self._data
@@ -222,8 +236,8 @@ class EntityUniqueAttributeCollection(base.QueryableModelCollection):
             identifier = str(args[0])
 
         if kwargs is None:
-                raise exceptions.BadRequest(details='An attribute should be given (e.g. qualifiedName="/my/hdfs/path")')
-        
+            raise exceptions.BadRequest(details='An attribute should be given (e.g. qualifiedName="/my/hdfs/path")')
+
         self._is_inflated = False
         self._filter = {}
         self._models = []
@@ -260,12 +274,14 @@ class EntityBulkCollection(base.QueryableModelCollection):
         """
         Create classifitions for specific entity
         """
+        LOG.debug(f"Trying to create {self.__class__.__name__} with the data {data}")
         self.client.post(self.url, data=data)
-    
+
     def delete(self, guid):
         """
         Delete guid
         """
+        LOG.debug(f"Trying to delete {self.__class__.__name__} with the GUID {guid}")
         return self.client.delete(self.url, params={'guid': guid})
 
 
@@ -289,6 +305,7 @@ class EntityBulkClassification(base.QueryableModel):
         """
         Create classifitions for specific entity
         """
+        LOG.debug(f"Trying to create {self.__class__.__name__} with the data {data}")
         self.client.post(self.url, data=data)
 
 
@@ -333,7 +350,7 @@ class AttributeDef(base.DependentModel):
               'valuesMaxCount', 'isUnique',
               'isIndexable', 'defaultValue',
               'constraints'
-             )
+              )
     relationships = {'constraints': Constraint}
 
 
@@ -400,7 +417,7 @@ class ClassificationDef(base.DependentModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class EntityDefCollection(base.DependentModelCollection):
@@ -418,7 +435,7 @@ class EntityDef(base.DependentModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class TypeDefHeaderCollection(base.QueryableModelCollection):
@@ -441,18 +458,22 @@ class TypeDefs(base.QueryableModelCollection):
 
     @events.evented
     def create(self, data, **kwargs):
+        LOG.debug(f"Trying to create entity definitions with the data {data}")
         self.client.post(self.url, data=data)
         return self
 
     @events.evented
     def update(self, data, **kwargs):
+        LOG.debug(f"Trying to update entity definitions with the data {data}")
         self.client.put(self.url, data=data)
         return self
 
     @events.evented
     def delete(self, data, **kwargs):
+        LOG.debug(f"Trying to delete entity definitions with the data {data}")
         self.client.delete(self.url, data=data)
         return self
+
 
 class TypeDef(base.QueryableModel):
     collection_class = TypeDefs
@@ -463,8 +484,7 @@ class TypeDef(base.QueryableModel):
     relationships = {'structDefs': StructDef,
                      'enumDefs': EnumDef,
                      'classificationDefs': ClassificationDef,
-                     'entityDefs': EntityDef,
-                    }
+                     'entityDefs': EntityDef, }
 
     def load(self, response):
         self._data.update(response)
@@ -490,7 +510,7 @@ class ClassificationDefGuid(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class ClassificationDefName(base.QueryableModel):
@@ -504,7 +524,7 @@ class ClassificationDefName(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class EntityDefGuid(base.QueryableModel):
@@ -518,7 +538,7 @@ class EntityDefGuid(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class EntityDefName(base.QueryableModel):
@@ -532,7 +552,7 @@ class EntityDefName(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class EnumDefGuid(base.QueryableModel):
@@ -554,7 +574,7 @@ class EnumDefName(base.QueryableModel):
               'description', 'typeVersion', 'options', 'elementDefs')
     relationships = {'elementDefs': ElementDef}
 
-    
+
 class RelationshipDefGuid(base.QueryableModel):
     path = 'types/relationshipdef/guid'
     data_key = 'relationshipdef_guid'
@@ -570,7 +590,7 @@ class RelationshipDefGuid(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class RelationshipDefName(base.QueryableModel):
@@ -588,7 +608,7 @@ class RelationshipDefName(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class StructDefGuid(base.QueryableModel):
@@ -602,7 +622,7 @@ class StructDefGuid(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class StructDefName(base.QueryableModel):
@@ -616,7 +636,7 @@ class StructDefName(base.QueryableModel):
               'version', 'name', 'description', 'typeVersion',
               'options')
     relationships = {'attributeDefs': AttributeDef,
-                    }
+                     }
 
 
 class TypeDefGuid(base.QueryableModel):
@@ -648,7 +668,7 @@ class LineageGuidRelation(base.DependentModel):
     data_key = 'lineage_guid_relations'
     fields = ('fromEntityId',
               'toEntityId',
-             )
+              )
 
 
 class LineageGuidCollection(base.QueryableModelCollection):
@@ -658,7 +678,7 @@ class LineageGuidCollection(base.QueryableModelCollection):
 
         if kwargs is None:
             raise exceptions.BadRequest(details='An attribute should be given (e.g. qualifiedName="/my/hdfs/path")')
- 
+
         self._is_inflated = False
         self._filter = {}
         self._models = []
@@ -675,15 +695,16 @@ class LineageGuidCollection(base.QueryableModelCollection):
             url_path_filter = '?' + '&'.join(filter_list)
         return self.model_class(self, href='/'.join([self.url, identifier]) + url_path_filter,
                                 data={self.model_class.primary_key: identifier})
-    
+
 
 class LineageGuid(base.QueryableModel):
     path = 'lineage'
     data_key = 'lineage_guid'
-    fields = ('baseEntityGuid', 'guidEntityMap', 'property1', 'property2', 'relations', 'lineageDirection', 'lineageDepth')
+    fields = (
+        'baseEntityGuid', 'guidEntityMap', 'property1', 'property2', 'relations', 'lineageDirection', 'lineageDepth')
     relationships = {'relations': LineageGuidRelation}
     collection_class = LineageGuidCollection
- 
+
 
 class RelationshipGuid(base.QueryableModel):
     path = 'relationship/guid'
@@ -700,13 +721,16 @@ class RelationshipGuid(base.QueryableModel):
         """
         data = self._generate_input_dict(**kwargs)
         url = self.parent.url + '/relationship'
+        LOG.debug(f"Trying to update relationship  with the data {data}")
         self.load(self.client.put(url, data=data))
         return self
 
     def create(self, **kwargs):
         """Raise error since guid cannot be duplicated
         """
-        raise exceptions.MethodNotImplemented(method=self.create, url=self.url, details='GUID cannot be duplicated, to create a new GUID use the relationship resource')
+        raise exceptions.MethodNotImplemented(method=self.create, url=self.url,
+                                              details='GUID cannot be duplicated, '
+                                                      'to create a new GUID use the relationship resource')
 
 
 class RelationshipCollection(base.QueryableModelCollection):
@@ -715,7 +739,8 @@ class RelationshipCollection(base.QueryableModelCollection):
 
         """
         if 'data' not in kwargs:
-            raise exceptions.BadRequest(method=self.__call, details='This class should be called with the argument "data="')
+            raise exceptions.BadRequest(method=self.__call__,
+                                        details='This class should be called with the argument "data="')
         self._models = []
         self._is_inflated = True
         model = self.model_class(self,
@@ -740,6 +765,7 @@ class Relationship(base.QueryableModel):
 
         """
         data = self._generate_input_dict(**kwargs)
+        LOG.debug(f"Trying to update relationship with the data {data}")
         self.client.put(self.url, data=data)
         return self
 
@@ -749,6 +775,7 @@ class Relationship(base.QueryableModel):
 
         """
         data = self._generate_input_dict(**kwargs)
+        LOG.debug(f"Trying to create relationship with the data {data}")
         self.client.post(self.url, data=data)
         return self
 
@@ -807,6 +834,7 @@ class SearchBasic(base.QueryableModel):
         (POST) /v2/search/basic
         Please note that this DOES NOT create any entity.
         """
+        LOG.debug(f"Search using Basic Search POST with the following search parameters: {data}")
         self.load(self.client.post(self.url, data=data))
         return self
 
@@ -859,6 +887,7 @@ class SearchFulltext(base.QueryableModel):
 
 class SearchSavedCollection(base.QueryableModelCollection):
     """We can also remove this part but just keeping same structure as above"""
+
     def load(self, response):
         for item in response:
             model = self.model_class(self,

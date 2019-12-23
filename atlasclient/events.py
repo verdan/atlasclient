@@ -10,14 +10,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from collections import namedtuple
-import logging
 import inspect
+import logging
+from collections import namedtuple
 
-from atlasclient.utils import NullHandler
-
-LOG = logging.getLogger(__name__)
-LOG.addHandler(NullHandler())
+LOG = logging.getLogger('pyatlasclient')
 
 EVENT_HANDLERS = {}
 state_list = ['ANY', 'STARTED', 'FAILED', 'FINISHED', 'PROGRESS']

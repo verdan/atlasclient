@@ -17,6 +17,9 @@ Adapted from python-novaclient with some changes.  Original source:
 
 https://github.com/openstack/python-novaclient/blob/master/novaclient/exceptions.py
 """
+import logging
+
+LOG = logging.getLogger('pyatlasclient')
 
 
 class ClientError(Exception):
@@ -30,7 +33,9 @@ class ClientError(Exception):
         super(ClientError, self).__init__()
 
     def __str__(self):
-        return "Unexpected client-side error: %s" % self.message
+        exception_message = "Unexpected client-side error: %s" % self.message
+        LOG.error(exception_message)
+        return exception_message
 
 
 class Timeout(Exception):
@@ -45,7 +50,9 @@ class Timeout(Exception):
         super(Timeout, self).__init__()
 
     def __str__(self):
-        return "Timed out after %s seconds: %s" % (self.timeout, self.message)
+        exception_message = "Timed out after %s seconds: %s" % (self.timeout, self.message)
+        LOG.error(exception_message)
+        return exception_message
 
 
 class Failed(Exception):
@@ -60,9 +67,11 @@ class Failed(Exception):
         super(Failed, self).__init__()
 
     def __str__(self):
-        return "Failure detected for %s/%s: %s" % (self.model.__class__.__name__,
-                                                   self.model.identifier,
-                                                   self.message)
+        exception_message = "Failure detected for %s/%s: %s" % (self.model.__class__.__name__,
+                                                                self.model.identifier,
+                                                                self.message)
+        LOG.error(exception_message)
+        return exception_message
 
 
 class HttpError(Exception):
@@ -84,7 +93,9 @@ class HttpError(Exception):
 
     def __str__(self):
         params = (self.method, self.url, self.message, self.code, self.details)
-        return "HTTP request failed for %s %s: %s %s: %s" % params
+        exception_message = "HTTP request failed for %s %s: %s %s: %s" % params
+        LOG.error(exception_message)
+        return exception_message
 
 
 class BadRequest(HttpError):

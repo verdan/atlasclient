@@ -10,8 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import re
 import base64
+
+import re
 
 try:
     from logging import NullHandler  # pylint: disable=unused-import
@@ -125,6 +126,7 @@ def parse_table_qualified_name(qualified_name, qn_regex=DEFAULT_TABLE_QN_REGEX):
     If database or cluster name not found,
     then uses the 'atlas_default' as both of them.
     """
+
     def apply_qn_regex(name, table_qn_regex):
         return table_qn_regex.match(name)
 
