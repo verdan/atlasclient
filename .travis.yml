@@ -26,7 +26,7 @@ script:
 - tox -e $TOX_ENV
 after_success: coveralls
 deploy:
-  provider: pypi
+  - provider: pypi
     user: __token__
     password:
       secure: UwEP5fb+gGKdoYd7gr0hCV02v9S5sz9AT62x64/yOJSTFe4zrJ/q4yaeBVEQ40t8LXEg/4NEw38Jhq1eAuyFiABvHTNGN3idkbXruwynOb/vhsZtdOOnPKnh7uSTwm8A/vQCF3HxAGUai15kshnbidmtVUi/SFOGH0yea31JE3ooMJQCkPpb+dbZqbGc21j/Aewy2EStTtZKyDNsMHSJYz8MQk18husC/9yNs7gstGRDjYtyGPXVk3HdzeC4OAmBsLaAqytTbNfdeCHnUcynPMUC/Vh7ntHZcTqhCOBwu3OpCPRr8PRuYEivCeXGUQBYK8+wraMDOzNz3Gr67xmSkg5IUapyYAb60zGSU68G/Gn7rk8sw4wxuMezT28abXY3j95/11xs808A0/g6vdqduF73aogdeN7EYr2EDy+iyVwhotjiw8dP6KI/QlBeX/zitMzerF32BYCJTQ6OleOPWQox2a897REkpYMNRPJESq6lhZzzVVnyZ1khZ9lGAKRH1hVFXz6Bc7Knys7ig2WVK7shVYbIUNkUX7dEAyWpVpcJZungbOjYgK/lzPcBhtSy2mSyAT6ZQ4PfEVV/FD5Xnxq9hLURHXrT62MQCAhOawxwqi0DsFuw9tlAamF5j3JRgjXXMzOJMbDaqOOynozhFLPw6oL7K5VAJpWwS7Cf+JA=
