@@ -9,6 +9,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+from typing import List
 
 import base64
 
@@ -178,3 +179,17 @@ def make_table_qualified_name(table_name, cluster=None, db=None):
         qualified_name = '{}@{}'.format(qualified_name, cluster)
 
     return qualified_name
+
+
+def extract_entities(collections):
+    """
+    Helper method for flattening all collections from {collections}
+
+    :return: list of all entities
+    """
+    entities = []
+
+    for collection in collections:
+        entities.extend(collection.entities)
+
+    return entities
