@@ -432,7 +432,7 @@ class TestRelationshipREST():
 #            atlas_client.relationship.refresh() 
 
     def test_relationship_put(self, mocker, atlas_client, relationship_guid_response):
-        relationship_collection = atlas_client.relationship(data=relationship_guid_response) 
+        relationship_collection = atlas_client.relationship(**relationship_guid_response)
         for r in relationship_collection:
             assert r._data == relationship_guid_response
             mocker.patch.object(r.client, 'put')
@@ -441,7 +441,7 @@ class TestRelationshipREST():
             r.client.put.assert_called_with(r._href, data=r._data)
              
     def test_relationship_post(self, mocker, atlas_client, relationship_guid_response):
-        relationship_collection = atlas_client.relationship(data=relationship_guid_response) 
+        relationship_collection = atlas_client.relationship(**relationship_guid_response)
         for r in relationship_collection:
             assert r._data == relationship_guid_response
             mocker.patch.object(r.client, 'post')
