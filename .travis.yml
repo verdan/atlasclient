@@ -26,14 +26,13 @@ script:
 - tox -e $TOX_ENV
 after_success: coveralls
 deploy:
-  matrix:
   - provider: pypi
-    user: __token__
+    user: "__token__"
+    password:
+      secure: Podcsbl0XXquMaiFWyvmCirbEAuhsHnJM5sv9amutJA3sOwGOyhYhyaRSgmJwK5PWWSlLlFt+qhY/PRutXM9gqaWzmJuRDKH2+ScJfcN1YfqJsHulicDjlAXUWyDLxqqEfSe/UYUvr2sWa9n2bOyBEA27GlZawOa+cdlfAauDsU+j+W6443bGm1KYeq8m/GpKkXdiO6UV3FnYxqbDb9ek90zcE8hODTqy7CMkeG3c1XpvuVkhLLxss6NO49yjPCvSkzD0ozHID55nNAxcNH6puG51fuGV97y8hBZJIpdrJGA3EHk0hCDhonERM+zs2Q3R7u3tMm+c2kenoL1Lqvjlh12h0biibf7QG8w6v9OoMY2RojgFWxCEj6N/M8JKFSAviK1180cm7Iu50OdL3+lGQSsDAiUw+dtq7lv9SKTtnBk5ayuujdYbdMMVNScMakcwURiD5UCOUoC49DNZBpPCjIEfFrZpiLJ9qMmslHWFvUDDOhUhAOqIMPWqlT0VBe+5k7NTKmllIta+D3tadJkIpo2DDxoiZ+DMX/0zPx2dG19eoXj2s4lTArs0z9YI6w1mhTelkgoWDBNmpcLTBoXn/KncHP17TXZ4hh6b45MctBHsxfEwMSTePqUR3AQu5XUpqLKzF/2Vj79W8wsXaNajTlb9VpKkI8+0fwA+ubTjh4=
     distributions: sdist bdist_wheel
     skip_existing: true
     skip_cleanup: true
     on:
       tags: true
       repo: verdan/pyatlasclient
-    password:
-      secure: bB30t47FNebDERPuFjz4B9PNVeqngKsVPV2HLP/4V7mRK4QK74Nl07uM4zxBFHafGTRsBx73AFo3WJOgW0WOiaEZ7NtJxhP2Vt88pZVh4sQrr9KrGjvAV56Sd72WtMT9J0bngEiLaAoEIGk+FEVrYhThJxREt7aIoWXqUgIsGwLoPZjYQO9p+oqLQk2/fg4Cj5T+mpqtxM1mUy81mTN/HXKGRKgQR6bfVcVlUE6LQ24Ss6QWj6tBxzXy6vGY0LB3nbJlDWzI/VG75zYzFSf9/yrp5PGSwK2+K9g6ZqliiW6UwfZOHmfN4TpIH1Y7pomhhF7yM8zfoGz8SPMpPV+ck5IR0+jFN5PSM5SwRtUwOz722G8XAqtKdlqxiKZZE0JbVHSH9u3rZzQpRCFioOI9bV/tRZX+MHcON1dWdl6eH2x9nmR6iAmcX8kuJrgJSGbSee9m0/n7ZSKrzk2QrKS4lkpddIgw8j/IBVMufFAdG+EOKxGcXUhUToLIVKWdR3HDvD7rh8tQ+YISZ74gpkCjd5jw9QLUGRjxagriG9Ee2ZXLCI6VyiQj0S970ficGMShJqKVjlh0GvjnvGMqKiAgBwgmI/9ncSlS1qIplVjffPAQQTnIPuuoJb/piirev1JSq2Ti9a5ZGVcvAGbqhKvTkrUi08wTzdqn0DCnI+TXDz0=
