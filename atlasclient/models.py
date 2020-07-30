@@ -760,7 +760,7 @@ class Relationship(base.QueryableModel):
               'version', 'end1', 'end2', 'label', 'typeName', 'attributes')
 
     def _generate_input_dict(self, **kwargs):
-        return kwargs
+        return kwargs.get("data")
 
     @events.evented
     def update(self, **kwargs):

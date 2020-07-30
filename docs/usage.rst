@@ -414,7 +414,7 @@ To create a new relationship between entities::
         },
     }
 
-    client.relationship.create(**entity_def)
+    client.relationship.create(data=entity_def)
 
 
 Get relationship by GUID
