@@ -710,7 +710,7 @@ class RelationshipGuid(base.QueryableModel):
     path = 'relationship/guid'
     data_key = 'relationship_guid'
     primary_key = 'guid'
-    fields = ('guid', 'status', 'createdBy',
+    fields = ('guid', 'status', 'createdBy', 'referredEntities', 'relationship',
               'updatedBy', 'createTime', 'updateTime',
               'version', 'end1', 'end2', 'label', 'typeName', 'attributes')
 
@@ -758,6 +758,9 @@ class Relationship(base.QueryableModel):
     fields = ('guid', 'status', 'createdBy',
               'updatedBy', 'createTime', 'updateTime',
               'version', 'end1', 'end2', 'label', 'typeName', 'attributes')
+
+    def _generate_input_dict(self, **kwargs):
+        return kwargs
 
     @events.evented
     def update(self, **kwargs):

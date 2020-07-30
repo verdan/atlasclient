@@ -162,7 +162,8 @@ class HttpClient(object):
         handle_response(response)
 
         LOG.debug("Response headers: %s", response.headers)
-        LOG.debug("Response: %s", response.json())
+        if response.status_code != 204 and len(response.content):
+            LOG.debug("Response: %s", response.json())
 
         if response.headers.get('content-length') is None:
             # Log bad methods so we can report them

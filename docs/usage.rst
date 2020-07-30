@@ -399,7 +399,43 @@ To get lineage info about entity identified by GUID::
 RelationshipREST
 ----------------
 
-TO BE DONE...
+Create a new relationship between entities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To create a new relationship between entities::
+
+    entity_def = {
+        "typeName": "DataSet_Users_Relation", # Could be any relationship type name
+        "end1": {
+            "guid": "GUID OF ANY TABLE", "typeName": "Table",
+        },
+        "end2": {
+            "guid": "GUID OF USER", "typeName": "User",
+        },
+    }
+
+    client.relationship.create(**entity_def)
+
+
+Get relationship by GUID
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+To get the relationship identified by GUID of a realtionship::
+
+    relationship_entity = client.relationship_guid(GUID)
+    print(relationship_entity.relationship)
+
+
+Delete relationship by GUID
+~~~~~~~~~~~~~~~~~~~
+
+To get the relationship identified by GUID of a realtionship::
+
+    relationship_entity = client.relationship_guid(GUID).delete()
+    OR
+    relationship_entity = client.relationship_guid(GUID)
+    relationship_entity.delete()
+
 
 TypesREST
 ---------
