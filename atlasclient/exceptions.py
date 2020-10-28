@@ -208,3 +208,8 @@ def handle_response(response):
         kwargs['retry_after'] = response.headers.get('retry-after')
 
     raise cls(**kwargs)
+
+
+class BadHttpAuthArg(ClientError):
+    def __init__(self):
+        super().__init__(message="You need to provide a login password or an oidc_token to connect to a Atlas sever")

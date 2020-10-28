@@ -20,7 +20,7 @@ import io
 import requests
 
 from atlasclient import models, utils, base, exceptions
-from atlasclient.exceptions import handle_response
+from atlasclient.exceptions import handle_response, BadHttpAuthArg
 
 LOG = logging.getLogger('pyatlasclient')
 
@@ -63,17 +63,14 @@ class Atlas(object):
     use one of the entry points to start hitting Atlas object collections.
     """
 
-    def __init__(self, host, port=None, username=None, password=None,
+    def __init__(self, host, port=None, username=None, password=None, oidc_token=None,
                  identifier=None, protocol=None, validate_ssl=True,
                  timeout=10, max_retries=5, auth=None):
-
         self.base_url = utils.generate_base_url(host, port=port, protocol=protocol)
-
         if identifier is None:
             identifier = 'python-atlasclient'
-
         self.client = HttpClient(host=self.base_url, username=username,
-                                 password=password, identifier=identifier,
+                                 password=password, identifier=identifier, oidc_token=oidc_token,
                                  validate_ssl=validate_ssl, timeout=timeout,
                                  max_retries=max_retries, auth=auth)
         self._version = None
@@ -116,13 +113,18 @@ class HttpClient(object):
     cases do exist either due to Atlas bugs or other mitigating circumstances.
     """
 
-    def __init__(self, host, username, password, identifier, validate_ssl=True,
+    def __init__(self, host, identifier, username=None, password=None, oidc_token=None, validate_ssl=True,
                  timeout=10, max_retries=5, auth=None):
-        basic_token = utils.generate_http_basic_token(username=username, password=password)
+        if oidc_token:
+            auth_header = f'Bearer {oidc_token}'
+        elif username and password:
+            basic_token = utils.generate_http_basic_token(username=username, password=password)
+            auth_header = f'Basic {basic_token}'
+        else:
+            raise BadHttpAuthArg
         self.request_params = {
             'headers': {'X-Requested-By': identifier,
-                        'Authorization': 'Basic {}'.format(basic_token)},
-            # 'auth': (username, password),
+                        'Authorization': auth_header},
             'verify': validate_ssl,
             'timeout': timeout,
         }
