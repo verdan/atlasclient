@@ -6,6 +6,7 @@ include README.rst
 include *.txt
 
 recursive-include tests *
+recursive-include atlasclient *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
