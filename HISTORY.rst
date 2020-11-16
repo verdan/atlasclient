@@ -6,6 +6,7 @@ History
 ------------------
 * Drops support of Python 3.6, adds the support of Python 3.8
 * Implements the Glossary endpoints (using Python Dataclasses)
+* Adds the OIDC support.
 
 1.0.0 (2019-08-10)
 ------------------
