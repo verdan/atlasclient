@@ -31,8 +31,7 @@ deploy:
     password:
       secure: Podcsbl0XXquMaiFWyvmCirbEAuhsHnJM5sv9amutJA3sOwGOyhYhyaRSgmJwK5PWWSlLlFt+qhY/PRutXM9gqaWzmJuRDKH2+ScJfcN1YfqJsHulicDjlAXUWyDLxqqEfSe/UYUvr2sWa9n2bOyBEA27GlZawOa+cdlfAauDsU+j+W6443bGm1KYeq8m/GpKkXdiO6UV3FnYxqbDb9ek90zcE8hODTqy7CMkeG3c1XpvuVkhLLxss6NO49yjPCvSkzD0ozHID55nNAxcNH6puG51fuGV97y8hBZJIpdrJGA3EHk0hCDhonERM+zs2Q3R7u3tMm+c2kenoL1Lqvjlh12h0biibf7QG8w6v9OoMY2RojgFWxCEj6N/M8JKFSAviK1180cm7Iu50OdL3+lGQSsDAiUw+dtq7lv9SKTtnBk5ayuujdYbdMMVNScMakcwURiD5UCOUoC49DNZBpPCjIEfFrZpiLJ9qMmslHWFvUDDOhUhAOqIMPWqlT0VBe+5k7NTKmllIta+D3tadJkIpo2DDxoiZ+DMX/0zPx2dG19eoXj2s4lTArs0z9YI6w1mhTelkgoWDBNmpcLTBoXn/KncHP17TXZ4hh6b45MctBHsxfEwMSTePqUR3AQu5XUpqLKzF/2Vj79W8wsXaNajTlb9VpKkI8+0fwA+ubTjh4=
     distributions: sdist bdist_wheel
-    skip_existing: true
-    skip_cleanup: true
+    edge: true
     on:
       tags: true
       repo: verdan/pyatlasclient
