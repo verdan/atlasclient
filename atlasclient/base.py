@@ -23,6 +23,7 @@ import time
 from datetime import datetime, timedelta
 
 from atlasclient import events, exceptions, utils
+from atlasclient.exceptions import BadRequest
 
 LOG = logging.getLogger('pyatlasclient')
 
@@ -579,13 +580,13 @@ class QueryableModel(Model):
     get the latest data from the server, the refresh() method will do that for
     you.
     """
-
     collection_class = QueryableModelCollection
     use_key_prefix = False
     path = None
     data_key = None
     relationships = {}
     method = "get"  # To keep track of the method type of each request
+    _url = None     # This is to handle the getter/setter of the property
 
     def __init__(self, *args, **kwargs):
         self.request = None
@@ -595,6 +596,7 @@ class QueryableModel(Model):
                 self._href = self._href.replace('classifications/', 'classification/')
         else:
             self._href = None
+        self._is_inflated = False
         self._is_inflating = False
         super(QueryableModel, self).__init__(*args, **kwargs)
 
@@ -606,15 +608,25 @@ class QueryableModel(Model):
         Otherwise, it will generated it based on the collection's url and the
         model's identifier.
         """
+        if self._url:
+            return self._url
+
+        _url = None
         if self._href is not None:
-            return self._href
-        if self.identifier:
+            _url = self._href
+        elif self.identifier:
             #  for some reason atlas does not use classifications here in the path when considering one classification
-            path = '/'.join([self.parent.url.replace('classifications/', 'classficiation/'), self.identifier])
-            return path
+            _url = '/'.join([self.parent.url.replace('classifications/', 'classficiation/'), self.identifier])
+        if _url:
+            self.url = _url
+            return self._url
         raise exceptions.ClientError("Not able to determine object URL")
 
-    def inflate(self):
+    @url.setter
+    def url(self, value):
+        self._url = value
+
+    def inflate(self, url=None):
         """Load the resource from the server, if not already loaded."""
         if not self._is_inflated:
             if self._is_inflating:
@@ -631,7 +643,7 @@ class QueryableModel(Model):
             try:
                 params = self.searchParameters if hasattr(self, 'searchParameters') else {}
                 # To keep the method same as the original request. The default is GET
-                self.load(self.client.request(self.method, self.url, **params))
+                self.load(self.client.request(self.method, url or self.url, **params))
             except Exception:
                 self.load(self._data)
 
@@ -797,3 +809,157 @@ class QueryableModel(Model):
         if self.entities and isinstance(self.entities, DependentModelCollection):
             referred_entities = self.referredEntities or dict()
             return _fix_relationships(self.client, self.entities, referred_entities, attributes)
+
+
+class QueryableModelCollectionBulk(QueryableModelCollection):
+    def create(self, data):
+        """
+        Create entities in bulk amount. Data must be a list of instances
+        """
+        LOG.debug(f"Trying to create {self.__class__.__name__} with the data {data}")
+        if not isinstance(data, list):
+            raise BadRequest(
+                url=self.model_class.path,
+                method="POST",
+                message=f'Data should be a list of "{self.model_class.data_class}"'
+            )
+        _data = list()
+        for item in data:
+            # noinspection PyProtectedMember
+            _data.append(
+                self.model_class.data_class(**item).to_dict(
+                    data_key=self.model_class.data_key,
+                    ignore_falsy=True)
+            )
+
+        self.load(self.client.post(self.url, data=_data))
+        return self._models
+
+    def delete(self, data):
+        """
+        Deletes entities in bulk amount. Data must be a list of instances
+        """
+        LOG.debug(f"Trying to delete {self.__class__.__name__} with the data {data}")
+        if not isinstance(data, list):
+            raise BadRequest(
+                url=self.model_class.path,
+                method="DELETE",
+                message=f'Data should be a list of "{self.model_class.data_class}"'
+            )
+        _data = list()
+        for item in data:
+            # noinspection PyProtectedMember
+            _data.append(
+                self.model_class.data_class(**item).to_dict(
+                    data_key=self.model_class.data_key,
+                    ignore_falsy=True)
+            )
+
+        self.load(self.client.delete(self.url, data=_data))
+        return self._models
+
+    def update(self, data):
+        """
+        Updates entities in bulk amount. Data must be a list of instances
+        """
+        LOG.debug(f"Trying to update {self.__class__.__name__} with the data {data}")
+        if not isinstance(data, list):
+            raise BadRequest(
+                url=self.model_class.path,
+                method="PUT",
+                message=f'Data should be a list of "{self.model_class.data_class}"'
+            )
+        _data = list()
+        for item in data:
+            # noinspection PyProtectedMember
+            _data.append(
+                self.model_class.data_class(**item).to_dict(
+                    data_key=self.model_class.data_key,
+                    ignore_falsy=True)
+            )
+
+        self.load(self.client.put(self.url, data=_data))
+        return self._models
+
+
+class QueryableModelV2(QueryableModel):
+    """
+    Leverages the support of Python's Data Classes for the implementation.
+    """
+    data_class = None
+    data_class_data = None
+    primary_identifier = None
+
+    def __init__(self, *args, **kwargs):
+        self.primary_key_value = kwargs.get("data", {}).get(self.primary_key)
+        super(QueryableModelV2, self).__init__(*args, **kwargs)
+
+    def __dir__(self):
+        attributes = list()
+        for item in self.data_class.__mro__:
+            if item.__name__ != 'object':
+                attributes.extend(list(item.__dataclass_fields__.keys()))
+        return attributes
+
+    def __getattr__(self, attr):
+        """Lazy-load related objects or object data.
+        """
+        try:
+            return getattr(self.data_class_data, attr)
+        except AttributeError:
+            if hasattr(self.data_class, attr):
+                # To keep the method same as the original request. The default is GET
+                self.load(self.client.request("get", self.url))
+                return getattr(self.data_class_data, attr)
+            else:
+                return super(QueryableModelV2, self).__getattr__(attr)
+        except Exception as ex:
+            raise ex
+
+
+    def to_dict(self):
+        """Convert a model to a dictionary."""
+        if not self.data_class_data:
+            self._is_inflated = False
+            self.inflate()
+        return self.data_class_data.to_dict()
+
+    def _generate_input_dict(self, **kwargs):
+        if len(kwargs):
+            return self.data_class(**kwargs).to_dict(data_key=self.data_key, ignore_falsy=True)
+        else:
+            return self.to_dict()
+
+    @events.evented
+    def update(self, **kwargs):
+        """Update a resource by passing in modifications via keyword arguments.
+
+        For example:
+
+            model.update(a='b', b='c')
+
+        If the request body doesn't follow that pattern, you'll need to overload
+        this method to handle your particular case.
+        """
+        data = self.to_dict()
+        data.update(kwargs)
+        self.method = 'put'
+        self.load(self.client.put(self.url, data=data))
+        return self
+
+    @events.evented
+    def partial_update(self, **kwargs):
+        """
+        Partially Update a resource by passing in modifications via keyword arguments.
+        """
+        self.method = 'put'
+        self.load(self.client.put(self.url, data=kwargs))
+        return self
+
+    @events.evented
+    def load(self, response):
+        if 'href' in response:
+            self._href = response.pop('href')
+        self.data_class_data = self.data_class(**response)
+
+

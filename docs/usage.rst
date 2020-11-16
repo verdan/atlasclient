@@ -654,6 +654,403 @@ To get typedefs by name::
     type_defs = client.typedef_guid(TYPE_NAME)
     type_defs._data
 
+
+
+GlossaryREST
+-------------
+
+This section explains how you can use Glossary, along with the terms and categories of glossaries using Atlas's REST endpoints.
+
+
+Get all Glossaries
+~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary**
+
+Retrieve all glossaries registered with Atlas::
+
+
+    glossaries = client.glossary()
+    for glossary in glossaries:
+        print(glossary.guid)
+
+Create a Glossary
+~~~~~~~~~~~~~~~~~
+**POST /v2/glossary**
+
+Create a single glossary using a POST request::
+
+    data = {
+        "qualifiedName": "DummyGlossary",
+        "name": "DummyGlossary",
+        "shortDescription": "Short Description of Glossary 'DummyGlossary'",
+        "longDescription": "Long Description of Glossary 'DummyGlossary",
+    }
+    glossary = client.glossary.create(**data)
+    print(glossary.guid)
+
+Bulk create Glossary categories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**POST /v2/glossary/categories**
+
+Create glossary category in bulk. Please note that the data should be a list of dictionaries::
+
+    data = [{
+        "anchor": {
+            "glossaryGuid": "GUID_OF_GLOSSARY"
+        },
+        "qualifiedName": "GlossaryCategoryDummyForBulkCreation",
+        "name": "GlossaryCategoryDummyForBulkCreation",
+        "shortDescription": "Short Description of GlossaryCategoryDummyForBulkCreation of Glossary1",
+        "longDescription": "Short Description of GlossaryCategoryDummyForBulkCreation of Glossary1",
+    }]
+    glossaries = client.glossary_categories.create(data)
+    print(len(glossaries))
+
+Create a single Glossary category
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**POST /v2/glossary/category**
+
+Create glossary category::
+
+    data = {
+        "anchor": {
+            "glossaryGuid": "GUID_OF_GLOSSARY"
+        },
+        "qualifiedName": "GlossaryCategoryDummy",
+        "name": "GlossaryCategoryDummy",
+        "shortDescription": "Short Description of GlossaryCategoryDummy of Glossary1",
+        "longDescription": "Short Description of GlossaryCategoryDummy of Glossary1",
+    }
+    glossary = client.glossary_category.create(**data)
+    print(glossary.guid)
+
+Import Glossary Terms from a file in Bulk
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**POST /v2/glossary/import**
+
+NOT YET IMPLEMENTED.
+
+
+Create a single Glossary term
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**POST /v2/glossary/term**
+
+Create a glossary term::
+
+    data = {
+        "anchor": {
+            "glossaryGuid": "GUID_OF_GLOSSARY"
+        },
+        "qualifiedName": "GlossaryTermDummy",
+        "name": "GlossaryTermDummy",
+        "shortDescription": "Short Description of GlossaryTermDummy of Glossary1",
+        "longDescription": "Short Description of GlossaryTermDummy of Glossary1",
+    }
+    term = client.glossary_term.create(**data)
+    print(term.guid)
+
+
+Bulk create Glossary terms
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**POST /v2/glossary/terms**
+
+Create glossary terms in bulk. Please note that the data should be a list of dictionaries::
+
+    data = data or [
+        {
+            "anchor": {
+                "glossaryGuid": "GUID_OF_GLOSSARY"
+            },
+            "qualifiedName": "GlossaryTermDummyForBulkCreation",
+            "name": "GlossaryTermDummyForBulkCreation",
+            "shortDescription": "Short Description of GlossaryTermDummyForBulkCreation of Glossary1",
+            "longDescription": "Short Description of GlossaryTermDummyForBulkCreation of Glossary1",
+        },
+        {
+            "anchor": {
+                "glossaryGuid": "GUID_OF_GLOSSARY"
+            },
+            "qualifiedName": "GlossaryTermDummyForBulkCreation_Two",
+            "name": "GlossaryTermDummyForBulkCreation_Two",
+            "shortDescription": "Short Description of GlossaryTermDummyForBulkCreation_Two of Glossary1",
+            "longDescription": "Short Description of GlossaryTermDummyForBulkCreation_Two of Glossary1",
+        }
+    ]
+    glossaries = client.glossary_terms.create(data)
+    print(len(glossaries))
+
+
+Delete a Glossary
+~~~~~~~~~~~~~~~~~
+**DELETE /v2/glossary/{glossaryGuid}**
+
+Delete a Glossary::
+
+    glossary = client.glossary(GUID_OF_GLOSSARY)
+    glossary.delete()
+
+Retrieve a single Glossary
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/{glossaryGuid}**
+
+Get a specific Glossary::
+
+    glossary = client.glossary(GUID_OF_GLOSSARY)
+    print(glossary.guid)
+
+
+Update a single Glossary
+~~~~~~~~~~~~~~~~~~~~~~~~
+**PUT /v2/glossary/{glossaryGuid}**
+
+Update a specific Glossary::
+
+    glossary = client.glossary(GUID_OF_GLOSSARY)
+    glossary = glossary.update(language="Urdu", usage="Testing Usage")
+
+
+Delete a Glossary Category
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**DELETE /v2/glossary/category/{categoryGuid}**
+
+Delete a Glossary Category::
+
+    glossary_cat = client.glossary_category(GUID_OF_GLOSSARY_CATEGORY)
+    glossary_cat.delete()
+
+
+Retrieve a single Glossary Category
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/category/{categoryGuid}**
+
+Get a specific Glossary Category::
+
+    glossary_cat = client.glossary_category(GUID_OF_GLOSSARY_CATEGORY)
+    print(glossary_cat.guid)
+
+
+Update a single Glossary Category
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**PUT /v2/glossary/category/{categoryGuid}**
+
+Update a specific Glossary Category::
+
+    glossary_cat = client.glossary_category(GUID_OF_GLOSSARY_CATEGORY)
+    glossary_cat = glossary_cat.update(shortDescription="Updated Short Description")
+
+
+Get sample templates for importing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/import/template**
+
+NOT YET IMPLEMENTED.
+
+Delete a Glossary Term
+~~~~~~~~~~~~~~~~~~~~~~
+**DELETE /v2/glossary/term/{termGuid}**
+
+Delete a Glossary Term::
+
+    term = client.glossary_term(GUID_OF_GLOSSARY_TERM)
+    term.delete()
+
+Retrieve a single Glossary Term
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/term/{termGuid}**
+
+Get a specific Glossary Category::
+
+    term = client.glossary_term(GUID_OF_GLOSSARY_TERM)
+    print(term.guid)
+
+Update a single Glossary Term
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**PUT /v2/glossary/term/{termGuid}**
+
+Update a specific Glossary Term::
+
+    term = client.glossary_term(guid)
+    term = term.update(abbreviation="Urdu", examples=["Alpha example", "Beta example"])
+    print(term.abbreviation)
+    print(term.examples)
+
+
+Get a Glossary in detail
+~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/{glossaryGuid}/detailed**
+
+Get a specific Glossary in detail as much as possible with terms and categories::
+
+    glossary = client.glossary(GUID_OF_GLOSSARY).detailed()
+    print(glossary.guid)
+
+
+Partially update a Glossary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**PUT /v2/glossary/{glossaryGuid}/partial**
+
+Partially update the glossary::
+
+    glossary = client.glossary(GUID_OF_GLOSSARY)
+    glossary = glossary.partial_update(language="English")
+    print(glossary.language)
+
+Get Categories of a Glossary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/{glossaryGuid}/categories**
+
+Get the categories belonging to a specific glossary. Please make sure to provide glossary GUID as the named parameter::
+
+    categories = client.glossary.fetch_categories(glossary_guid=GUID_OF_GLOSSARY)
+    for item in categories:
+        print(item.guid)
+
+Get Terms of a Glossary
+~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/{glossaryGuid}/terms**
+
+Get terms belonging to a specific glossary::
+
+    terms = client.glossary.fetch_terms(glossary_guid=guid)
+    for item in terms:
+        print(item.guid)
+
+
+Partially update Glossary Category
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**PUT /v2/glossary/category/{categoryGuid}/partial**
+
+Partially update the glossary category::
+
+    glossary_cat = client.glossary_category(GUID_OF_GLOSSARY_CATEGORY)
+    print(glossary_cat.shortDescription)
+
+    _glossary_cat = glossary_cat.partial_update(shortDescription="Updated Short Description")
+    print(_glossary_cat.shortDescription)
+
+Get all related Categories
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/category/{categoryGuid}/related**
+
+Get all related categories (parent and children)::
+
+    categories = client.glossary_category.fetch_related(category_guid=GUID_OF_GLOSSARY_CATEGORY)
+    for item in categories:
+        print(item.categoryGuid)
+
+Get Terms associated with a Category
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/category/{categoryGuid}/terms**
+
+Get all terms associated with the specific category::
+
+    terms_of_category = client.glossary_category.fetch_terms(category_guid=GUID_OF_GLOSSARY_CATEGORY)
+    for item in terms_of_category:
+        print(item.termGuid)
+
+Partially update Glossary Term
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**PUT /v2/glossary/term/{termGuid}/partial**
+
+Partially update the glossary term::
+
+    term = client.glossary_term(GUID_OF_GLOSSARY_TERM)
+    print(term.abbreviation)
+
+    _term = term.partial_update(abbreviation="Urdu")
+    print(_term.abbreviation)
+
+Remove the Term assignment
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**DELETE /v2/glossary/terms/{termGuid}/assignedEntities**
+
+Remove the term assignment for the given list of entity headers.
+The request body takes a List of related entity IDs (`AtlasRelatedObjectId <http://atlas.apache.org/api/v2/json_AtlasRelatedObjectId.html>`_) from which the term has to be dissociated::
+
+    _data = [{'guid': 'd0fc8540-d233-40f6-83be-1380f7c7a8ad', 'typeName': 'Table', 'uniqueAttributes': None,
+                      'displayText': 'customer_dim', 'entityStatus': 'ACTIVE',
+                      'relationshipGuid': 'b9e97307-f258-44c4-b062-6a358ab9ac61', 'relationshipStatus': 'ACTIVE',
+                      'relationshipType': 'AtlasGlossarySemanticAssignment'}
+             ]
+    client.glossary_terms.delete_assigned_entities(term_guid=GUID_OF_GLOSSARY_TERM, data=_data)
+
+Get assigned entities of a term
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/terms/{termGuid}/assignedEntities**
+
+Get all entity headers assigned with the specified term::
+
+    entities = client.glossary_terms.fetch_assigned_entities(term_guid=GUID_OF_GLOSSARY_TERM)
+    for item in entities:
+        print(item.guid)
+
+Assign a term to a list of entities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**POST /v2/glossary/terms/{termGuid}/assignedEntities**
+
+Assign the given term to the provided list of entity headers::
+
+    _data = [
+                {
+                'guid': 'd0fc8540-d233-40f6-83be-1380f7c7a8ad', 'typeName': 'Table', 'uniqueAttributes': None,
+                'displayText': 'customer_dim', 'entityStatus': 'ACTIVE',
+                'relationshipGuid': 'b9e97307-f258-44c4-b062-6a358ab9ac61', 'relationshipStatus': 'ACTIVE',
+                'relationshipType': 'AtlasGlossarySemanticAssignment'
+                }
+            ]
+    entities = client.glossary_terms.assign_entities(term_guid=GUID_OF_GLOSSARY_TERM, data=_data)
+    for item in entities:
+        print(item.guid)
+
+Update the term assignment from a list of entities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**PUT /v2/glossary/terms/{termGuid}/assignedEntities**
+
+Update the given term to the provided list of entity headers::
+
+    _data = [
+                {
+                'guid': 'd0fc8540-d233-40f6-83be-1380f7c7a8ad', 'typeName': 'Table', 'uniqueAttributes': None,
+                'displayText': 'customer_dim', 'entityStatus': 'ACTIVE',
+                'relationshipGuid': 'b9e97307-f258-44c4-b062-6a358ab9ac61', 'relationshipStatus': 'ACTIVE',
+                'relationshipType': 'AtlasGlossarySemanticAssignment'
+                }
+            ]
+
+    entities = client.glossary_terms.update_assigned_entities(term_guid=GUID_OF_GLOSSARY_TERM, data=_data)
+    for item in entities:
+        print(item.guid)
+
+Get all related Terms
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/terms/{termGuid}/related**
+
+Get all related terms for a specific term::
+
+    terms = client.glossary_term.fetch_related(category_guid=GUID_OF_GLOSSARY_TERM)
+    for item in terms:
+        print(item.termGuid)
+
+Get Categories headers for a Glossary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/{glossaryGuid}/categories/headers**
+
+Get the categories headers belonging to a specific glossary::
+
+    categories = client.glossary.fetch_categories_headers(glossary_guid=GUID_OF_GLOSSARY)
+    for item in categories:
+        print(item.categoryGuid)
+
+Get Terms headers for a Glossary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**GET /v2/glossary/{glossaryGuid}/terms/headers**
+
+Get term headers belonging to a specific glossary::
+
+    terms = client.glossary.fetch_terms_headers(glossary_guid=GUID_OF_GLOSSARY)
+    for item in terms:
+        print(item.termGuid)
+
 AdminREST
 ---------
 

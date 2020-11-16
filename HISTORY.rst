@@ -2,6 +2,11 @@
 History
 =======
 
+1.1.0 (2020-11-16)
+------------------
+* Drops support of Python 3.6, adds the support of Python 3.8
+* Implements the Glossary endpoints (using Python Dataclasses)
+
 1.0.0 (2019-08-10)
 ------------------
 * Adds the helper functions to parse the qualified name

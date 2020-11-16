@@ -21,6 +21,7 @@ import requests
 
 from atlasclient import models, utils, base, exceptions
 from atlasclient.exceptions import handle_response, BadHttpAuthArg
+from atlasclient.glossary import models as glossary_models
 
 LOG = logging.getLogger('pyatlasclient')
 
@@ -52,7 +53,12 @@ ENTRY_POINTS = {'entity_guid': models.EntityGuid,
                 'relationship': models.Relationship,
                 'relationship_guid': models.RelationshipGuid,
                 'search_saved': models.SearchSaved,
-                'admin_metrics': models.AdminMetrics
+                'admin_metrics': models.AdminMetrics,
+                'glossary': glossary_models.Glossary,
+                'glossary_category': glossary_models.GlossaryCategory,
+                'glossary_categories': glossary_models.GlossaryCategories,
+                'glossary_term': glossary_models.GlossaryTerm,
+                'glossary_terms': glossary_models.GlossaryTerms,
                 }
 
 

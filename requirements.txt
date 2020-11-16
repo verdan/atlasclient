@@ -1,3 +1,4 @@
 six >=1.11.0
 Click >=6.0
 requests >=2.18.4
+pydantic==1.7.2
