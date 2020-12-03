@@ -26,7 +26,7 @@ Apache Atlas client in Python. Only compatible with Apache Atlas REST API **v2**
 *Based on the awesome work done by Poullet in atlasclient*
 
 * Free software: Apache Software License 2.0
-* Documentation: https://pyatlasclient.readthedocs.io.
+* Documentation: https://pyatlasclient.readthedocs.io
 
 Get started
 -----------
@@ -46,12 +46,15 @@ Features
 --------
 
 * Lazy loading: requests are only performed when data are required and not yet available
+* Leverages Python's Data Classes for Glossary.
 * Resource object relationships: REST API from sub-resources are done transparently for the user, for instance the user does not have to know that it needs to trigger a different REST request for getting the classifications of a specific entity.  
 
 TODO features  
 -------------
 
 * allow multiprocessing
+* Implement Caching
+* Apply Data Classes to all entity types. For now only Glossary endpoints are using it.
 
 Credits
 ---------
