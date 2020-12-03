@@ -98,3 +98,40 @@ def subscribe(obj, event, callback, event_state=None):
 
     EVENT_HANDLERS[event_key].append(callback)
     return
+
+
+def keep_path_and_url(func):
+    """
+    This function keeps the base path and url attribute of a model class to it's original
+    """
+    def _function(*args, **kwargs):
+        _temp_url = None
+        _temp_model_class_path = None
+        if args:
+            _self = args[0]
+            try:
+                _temp_model_class_path = _self.model_class.path
+            except Exception:
+                pass
+
+            try:
+                _temp_url = _self.url
+            except Exception:
+                pass
+
+        response = func(*args, **kwargs)
+
+        if _temp_url:
+            try:
+                args[0].url = _temp_url
+            except AttributeError:
+                pass
+
+        if _temp_model_class_path:
+            try:
+                args[0].model_class.path = _temp_model_class_path
+            except AttributeError:
+                pass
+
+        return response
+    return _function

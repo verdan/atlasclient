@@ -2,6 +2,7 @@ import logging
 
 from atlasclient import base, events
 from atlasclient.data_types import AtlasRelatedCategoryHeader, AtlasRelatedTermHeader, AtlasRelatedObjectId
+from atlasclient.events import keep_path_and_url
 from atlasclient.glossary.data_types import (AtlasGlossary, AtlasGlossaryCategory,
                                              AtlasGlossaryTerm, AtlasGlossaryExtInfo)
 
@@ -12,6 +13,7 @@ BASE_URL_GLOSSARY = "glossary"
 
 class GlossaryCollection(base.QueryableModelCollection):
     @events.evented
+    @keep_path_and_url
     def fetch_categories(self, glossary_guid):
         """
         GET /v2/glossary/{glossaryGuid}/categories: Get the categories belonging to a specific glossary
@@ -22,6 +24,7 @@ class GlossaryCollection(base.QueryableModelCollection):
         return self
 
     @events.evented
+    @keep_path_and_url
     def fetch_categories_headers(self, glossary_guid):
         """
         GET /v2/glossary/{glossaryGuid}/categories/headers: Get the categories headers belonging to a specific glossary
@@ -32,6 +35,7 @@ class GlossaryCollection(base.QueryableModelCollection):
         return self
 
     @events.evented
+    @keep_path_and_url
     def fetch_terms(self, glossary_guid):
         """
         GET /v2/glossary/{glossaryGuid}/terms: Get terms belonging to a specific glossary
@@ -42,6 +46,7 @@ class GlossaryCollection(base.QueryableModelCollection):
         return self
 
     @events.evented
+    @keep_path_and_url
     def fetch_terms_headers(self, glossary_guid):
         """
         GET /v2/glossary/{glossaryGuid}/terms/headers: Get the terms headers belonging to a specific glossary
@@ -67,6 +72,7 @@ class Glossary(base.QueryableModelV2):
     primary_key = 'guid'
 
     @events.evented
+    @keep_path_and_url
     def detailed(self):
         """
         GET /v2/glossary/{glossaryGuid}/detailed: Get a specific Glossary
@@ -77,6 +83,7 @@ class Glossary(base.QueryableModelV2):
         return self
 
     @events.evented
+    @keep_path_and_url
     def partial_update(self, **kwargs):
         """
         PUT /v2/glossary/{glossaryGuid}/partial: Partially update the glossary
@@ -87,6 +94,7 @@ class Glossary(base.QueryableModelV2):
 
 class GlossaryCategoryCollection(base.QueryableModelCollection):
     @events.evented
+    @keep_path_and_url
     def fetch_related(self, category_guid):
         """
         GET /v2/glossary/category/{categoryGuid}/related: Get all related categories (parent and children)
@@ -97,6 +105,7 @@ class GlossaryCategoryCollection(base.QueryableModelCollection):
         return self
 
     @events.evented
+    @keep_path_and_url
     def fetch_terms(self, category_guid):
         """
         GET /v2/glossary/category/{categoryGuid}/terms: Get all terms associated with the specific category
@@ -120,6 +129,7 @@ class GlossaryCategory(base.QueryableModelV2):
     primary_key = 'guid'
 
     @events.evented
+    @keep_path_and_url
     def partial_update(self, **kwargs):
         """
         PUT /v2/glossary/category/{categoryGuid}/partial: Partially update the glossary category
@@ -140,6 +150,7 @@ class GlossaryCategories(base.QueryableModelV2):
 
 class GlossaryTermCollection(base.QueryableModelCollection):
     @events.evented
+    @keep_path_and_url
     def fetch_related(self, term_guid):
         """
         GET /v2/glossary/terms/{termGuid}/related: Get all related terms for a specific term
@@ -166,6 +177,7 @@ class GlossaryTerm(base.QueryableModelV2):
     primary_key = 'guid'
 
     @events.evented
+    @keep_path_and_url
     def partial_update(self, **kwargs):
         """
         PUT /v2/glossary/term/{termGuid}/partial: Partially update the glossary term
@@ -177,6 +189,7 @@ class GlossaryTerm(base.QueryableModelV2):
 class GlossaryTermsCollection(base.QueryableModelCollectionBulk):
 
     @events.evented
+    @keep_path_and_url
     def fetch_assigned_entities(self, term_guid):
         """
         GET /v2/glossary/terms/{termGuid}/assignedEntities: Get all entity headers assigned with the specified term
@@ -187,6 +200,7 @@ class GlossaryTermsCollection(base.QueryableModelCollectionBulk):
         return self
 
     @events.evented
+    @keep_path_and_url
     def assign_entities(self, term_guid, data):
         """
         POST /v2/glossary/terms/{termGuid}/assignedEntities: Assign the given term to the provided list of entity headers
@@ -196,6 +210,7 @@ class GlossaryTermsCollection(base.QueryableModelCollectionBulk):
         return self.create(data)
 
     @events.evented
+    @keep_path_and_url
     def delete_assigned_entities(self, term_guid, data):
         """
         DELETE /v2/glossary/terms/{termGuid}/assignedEntities: Remove the term assignment for the given list of entity headers
@@ -205,6 +220,7 @@ class GlossaryTermsCollection(base.QueryableModelCollectionBulk):
         return self.delete(data=data)
 
     @events.evented
+    @keep_path_and_url
     def update_assigned_entities(self, term_guid, data):
         """
         PUT /v2/glossary/terms/{termGuid}/assignedEntities: Updates the term assignment for the given list of entity headers
